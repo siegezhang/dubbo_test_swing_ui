@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.net.SocketException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -22,12 +21,10 @@ public class DubboUtil {
           String.valueOf(
               CustomizedPropertyUtil.ctxPropertiesMap.getOrDefault("server.ip", "172.28.3.23"));
       int port =
-          Integer.valueOf(
+          Integer.parseInt(
               String.valueOf(
                   CustomizedPropertyUtil.ctxPropertiesMap.getOrDefault("server.port", 20892)));
       tc.connect(ip, port);
-    } catch (SocketException e) {
-      e.printStackTrace();
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -37,11 +34,6 @@ public class DubboUtil {
   }
 
   public static void main(String[] args) {
-    /* List<String> listInterface = lsAllInterface();
-    System.out.println(listInterface);
-    List<String> listMethod = lsAllMethod(listInterface.get(0));
-    System.out.println(listMethod);*/
-
     JSONObject obj = new JSONObject();
     obj.put("contractId", "12345");
     String str = invoke("com.mljr.bgrk.service.IFightFraudOutService", "receiptContract", obj);
@@ -54,7 +46,7 @@ public class DubboUtil {
         outputStream);
     String str = readUntil(">", inputStream);
     String[] strs = str.split("\r\n");
-    if (null != strs && strs.length > 0) {
+    if (strs.length > 0) {
       for (String string : strs) {
         if (string.startsWith("{")) {
           str = string;
@@ -70,7 +62,7 @@ public class DubboUtil {
     String str = readUntil(">", inputStream);
     String[] strs = str.split("\r\n");
     List<String> list = Arrays.asList(strs);
-    if (null != list && list.size() > 0) {
+    if (list.size() > 0) {
       return list.subList(0, list.size() - 1);
     }
     return list;
@@ -90,7 +82,7 @@ public class DubboUtil {
     String str = readUntil(">", inputStream);
     String[] strs = str.split("\r\n");
     List<String> list = Arrays.asList(strs);
-    if (null != list && list.size() > 0) {
+    if (list.size() > 0) {
       return list.subList(2, list.size() - 1);
     }
     return list;
@@ -109,16 +101,16 @@ public class DubboUtil {
   public static String readUntil(String endFlag, InputStream in) {
     InputStreamReader isr = new InputStreamReader(in);
     char[] charBytes = new char[1024];
-    int n = 0;
+    int n;
     boolean flag = false;
-    String str = "";
+    StringBuilder str = new StringBuilder();
     try {
       while ((n = isr.read(charBytes)) != -1) {
         for (int i = 0; i < n; i++) {
-          char c = (char) charBytes[i];
-          str += c;
+          char c = charBytes[i];
+          str.append(c);
           // 当拼接的字符串以指定的字符串结尾时,不在继续读
-          if (str.endsWith(endFlag)) {
+          if (str.toString().endsWith(endFlag)) {
             flag = true;
             break;
           }
@@ -130,6 +122,6 @@ public class DubboUtil {
     } catch (IOException e) {
       e.printStackTrace();
     }
-    return str;
+    return str.toString();
   }
 }

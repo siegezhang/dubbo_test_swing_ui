@@ -7,8 +7,12 @@ import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.util.List;
+import java.util.Objects;
 
 public class MainFrame {
 
@@ -18,6 +22,7 @@ public class MainFrame {
     try {
       UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName()); // 还可以
     } catch (Exception e) {
+      e.printStackTrace();
     }
     // 创建 JFrame 实例
     JFrame frame = new JFrame("Dubbo Test UI");
@@ -81,10 +86,11 @@ public class MainFrame {
                     new Runnable() {
                       public void run() {
                         resultLabel.setText("");
-                        String strInterface = interfaceBox.getSelectedItem().toString();
-                        String strMethod = methodBox.getSelectedItem().toString();
-                        JSONObject jsonValue =
-                            JSONObject.parseObject(jsonText.getText().toString());
+                        String strInterface =
+                            Objects.requireNonNull(interfaceBox.getSelectedItem()).toString();
+                        String strMethod =
+                            Objects.requireNonNull(methodBox.getSelectedItem()).toString();
+                        JSONObject jsonValue = JSONObject.parseObject(jsonText.getText());
                         LOGGER.info(
                             "开始发送dubbo报文,Interface:{},Method:{},Value:{}",
                             new Object[] {strInterface, strMethod, jsonValue.toString()});
@@ -102,19 +108,16 @@ public class MainFrame {
         });
 
     interfaceBox.addItemListener(
-        new ItemListener() {
-
-          public void itemStateChanged(ItemEvent e) {
-            methodBox.removeAllItems();
-            List<String> methodList = DubboUtil.lsAllMethod(e.getItem().toString());
-            LOGGER.info("重新获取接口{}的方法列表,MethodList:{}", e.getItem().toString(), methodList);
-            if (null != methodList && methodList.size() > 0) {
-              for (String string : methodList) {
-                methodBox.addItem(string);
-              }
+        e -> {
+          methodBox.removeAllItems();
+          List<String> methodList = DubboUtil.lsAllMethod(e.getItem().toString());
+          LOGGER.info("重新获取接口{}的方法列表,MethodList:{}", e.getItem().toString(), methodList);
+          if (methodList.size() > 0) {
+            for (String string : methodList) {
+              methodBox.addItem(string);
             }
-            methodBox.setVisible(true);
           }
+          methodBox.setVisible(true);
         });
 
     jsonText.addFocusListener(
@@ -142,9 +145,9 @@ public class MainFrame {
 
   private static Object[] getMethodMenuList() {
     Object[] interfaces = getInterfaceMenuList();
-    if (null != interfaces && interfaces.length > 0) {
+    if (interfaces.length > 0) {
       List<String> methodList = DubboUtil.lsAllMethod(String.valueOf(interfaces[0]));
-      if (null != methodList && methodList.size() > 0) {
+      if (methodList.size() > 0) {
         return methodList.toArray();
       }
     }
