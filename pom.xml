@@ -58,7 +58,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.hunter.dtu.core.App</mainClass>
+                            <mainClass>com.allin.core.App</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
