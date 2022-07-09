@@ -20,15 +20,14 @@ public class MainFrame {
 
   public static void run() {
     try {
-      UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName()); // 还可以
+      UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
     } catch (Exception e) {
       e.printStackTrace();
     }
-    // 创建 JFrame 实例
     JFrame frame = new JFrame("Dubbo Test UI");
     frame.setSize(800, 800);
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    frame.setResizable(false);
+    frame.setResizable(true);
 
     Toolkit toolkit = Toolkit.getDefaultToolkit();
     int x = (int) (toolkit.getScreenSize().getWidth() - frame.getWidth()) / 2;
@@ -36,8 +35,10 @@ public class MainFrame {
     frame.setLocation(x, y);
 
     JPanel panel = new JPanel();
-    frame.add(panel);
     placeComponents(panel);
+    frame.add(panel);
+    frame.pack();
+    // panel.setLayout(new GridLayout());
     frame.setVisible(true);
   }
 
@@ -83,25 +84,23 @@ public class MainFrame {
         new ActionListener() {
           public void actionPerformed(ActionEvent event) {
             new Thread(
-                    new Runnable() {
-                      public void run() {
-                        resultLabel.setText("");
-                        String strInterface =
-                            Objects.requireNonNull(interfaceBox.getSelectedItem()).toString();
-                        String strMethod =
-                            Objects.requireNonNull(methodBox.getSelectedItem()).toString();
-                        JSONObject jsonValue = JSONObject.parseObject(jsonText.getText());
-                        LOGGER.info(
-                            "开始发送dubbo报文,Interface:{},Method:{},Value:{}",
-                            new Object[] {strInterface, strMethod, jsonValue.toString()});
-                        String result = DubboUtil.invoke(strInterface, strMethod, jsonValue);
-                        if (null != result && result.length() > 0) {
-                          resultLabel.setText("发送报文成功");
-                        } else {
-                          resultLabel.setText("发送报文失败");
-                        }
-                        LOGGER.info("发送dubbo报文完成 ,result:{}", result);
+                    () -> {
+                      resultLabel.setText("");
+                      String strInterface =
+                          Objects.requireNonNull(interfaceBox.getSelectedItem()).toString();
+                      String strMethod =
+                          Objects.requireNonNull(methodBox.getSelectedItem()).toString();
+                      JSONObject jsonValue = JSONObject.parseObject(jsonText.getText());
+                      LOGGER.info(
+                          "开始发送dubbo报文,Interface:{},Method:{},Value:{}",
+                          new Object[] {strInterface, strMethod, jsonValue.toString()});
+                      String result = DubboUtil.invoke(strInterface, strMethod, jsonValue);
+                      if (null != result && result.length() > 0) {
+                        resultLabel.setText("发送报文成功");
+                      } else {
+                        resultLabel.setText("发送报文失败");
                       }
+                      LOGGER.info("发送dubbo报文完成 ,result:{}", result);
                     })
                 .start();
           }
@@ -122,7 +121,6 @@ public class MainFrame {
 
     jsonText.addFocusListener(
         new FocusListener() {
-
           public void focusLost(FocusEvent e) {}
 
           public void focusGained(FocusEvent e) {

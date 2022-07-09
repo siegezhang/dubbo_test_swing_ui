@@ -40,11 +40,7 @@ public class App {
       e.printStackTrace();
     }
     Map<String, Object> map = CustomizedPropertyUtil.ctxPropertiesMap;
-    for (Object k : prop.keySet()) {
-      Object v = prop.get(k);
-      String key = String.valueOf(k), value = String.valueOf(v);
-      map.put(key, value);
-    }
+    prop.keySet().forEach(key -> map.put(String.valueOf(key), prop.get(key)));
     LOGGER.info("加载初始化参数完成,{}", CustomizedPropertyUtil.ctxPropertiesMap);
   }
 }
